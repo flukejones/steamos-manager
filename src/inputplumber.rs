@@ -53,11 +53,15 @@ impl DeckService {
     }
 
     async fn check_devices(&self, object_manager: &ObjectManagerProxy<'_>) -> Result<()> {
-        if device_type().await.unwrap_or(DeviceType::Unknown) == DeviceType::LegionGoS {
+        if (device_type().await.unwrap_or(DeviceType::Unknown) == DeviceType::LegionGoS)
+            ||(device_type().await.unwrap_or(DeviceType::Unknown) == DeviceType::ZotacZone) {
             // There is a bug on the Legion Go S where querying this information
             // messes up the mapping for the `deck-uhid` target device. It's not
             // clear exactly what's causing this, so we just skip on the Legion
             // Go S since it makes a `deck-uhid` target device by default.
+            //
+            // The Zotac Gaming ZONE should default to 'xbox-elite' profile and doesn't need
+            // to switch to 'deck-uhid' here.
             return Ok(());
         }
         for (path, ifaces) in object_manager.get_managed_objects().await?.into_iter() {
@@ -98,6 +102,11 @@ impl DeckService {
             .as_str()
             .starts_with("/org/shadowblip/InputPlumber/CompositeDevice")
         {
+            return Ok(());
+        }
+        if (device_type().await.unwrap_or(DeviceType::Unknown) == DeviceType::ZotacZone) {
+            // Don't change profile for Zotac Gaming ZONE.
+            debug!("CompositeDevice {} for Zotac Zone got not changed", path);
             return Ok(());
         }
         let proxy = CompositeDeviceProxy::builder(&self.connection)
