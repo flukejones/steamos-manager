@@ -630,17 +630,17 @@ impl TdpLimitManager for ZotacZoneTdpLimitManager {
         Ok(min..=max)
     }
 
-    async fn is_active(&self) -> Result<bool> {
-        let config = platform_config().await?;
-        if let Some(config) = config
-            .as_ref()
-            .and_then(|config| config.performance_profile.as_ref())
-        {
-            Ok(get_platform_profile(&config.platform_profile_name).await? == "custom")
-        } else {
-            Ok(true)
-        }
-    }
+    //async fn is_active(&self) -> Result<bool> {
+    //    let config = platform_config().await?;
+    //    if let Some(config) = config
+    //        .as_ref()
+    //        .and_then(|config| config.performance_profile.as_ref())
+    //    {
+    //        Ok(get_platform_profile(&config.platform_profile_name).await? == "custom")
+    //    } else {
+    //        Ok(true)
+    //    }
+    //}
 }
 
 pub(crate) async fn get_max_charge_level() -> Result<i32> {
